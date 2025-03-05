@@ -20,9 +20,18 @@
                 "uri": "/v2/northwind/northwind.svc/",
                 "type": "OData",
                 "settings": {
-                    "annotations": [],
+                    "annotations": [
+                        "annotation0"
+                    ],
                     "localUri": "localService/mainService/metadata.xml",
                     "odataVersion": "2.0"
+                }
+            },
+            "annotation0": {
+                "type": "ODataAnnotation",
+                "uri": "annotations/annotation0.xml",
+                "settings": {
+                    "localUri": "annotations/annotation0.xml"
                 }
             }
         }
@@ -44,7 +53,12 @@
         }
     },
     "sap.ui5": {
-        "flexEnabled": true,
+        
+        "rootView": {
+            "viewName": "smarttable.view.smartTable",
+            "type": "XML"
+        },
+        "flexEnabled": false,
         "dependencies": {
             "minUI5Version": "1.133.0",
             "libs": {
@@ -66,7 +80,10 @@
             "": {
                 "dataSource": "mainService",
                 "preload": true,
-                "settings": {}
+                "settings": {
+                    "useBatch": false
+
+                }
             }
         },
         "resources": {
@@ -95,19 +112,28 @@
                     "target": [
                         "TargetApp"
                     ]
+                },
+                {
+                    "name": "smartTable",
+                    "pattern": "smartTable",
+                    "target": [
+                        "smartTable"
+                    ]
                 }
             ],
             "targets": {
                 "TargetApp": {
-                    "id": "App",
-                    "name": "App"
+                    "viewType": "XML",
+                    "transition": "slide",
+                    "clearControlAggregation": false,
+                    "viewId": "App",
+                    "viewName": "App"
+                },
+                "smartTable": {
+                    "viewType": "XML",
+                    "viewName": "smartTable"
                 }
             }
-        },
-        "rootView": {
-            "viewName": "smarttable.view.App",
-            "type": "XML",
-            "id": "App"
         }
     }
 }

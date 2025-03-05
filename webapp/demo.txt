@@ -1,0 +1,262 @@
+First Step: Connect to Northwind oData.
+
+Second Step: Create a view file for the smart table.
+
+Third Step: put in the smart table and the decleration of the name spaces at the top
+
+
+        * * * * FIRST SECTION * * * * 
+
+        xmlns:smartTable="sap.ui.comp.smarttable"
+
+        <smartTable:SmartTable
+                    id="BudgetSmartTable"
+                    entitySet="Employees"
+                    tableType="Table"
+                    useVariantManagement="true"
+                    useTablePersonalisation="true"
+                    showRowCount="false"
+                    persistencyKey="SmartTableAnalytical_Explored"
+                    enableAutoBinding="true"
+                    beforeRebindTable="onBeforeRebindTable"
+                    requestAtLeastFields="LastName,FirstName"
+                    initiallyVisibleFields="Region,PostalCode,HomePhone"
+                    class="sapUiResponsiveContentPadding"
+                    showOverlay="onShowOverlay"                    
+                >               
+                </smartTable:SmartTable>
+
+
+
+
+                                        ### TASK ###
+                Add one more Field to the table using the smartTable Property
+                                        ### TASK ###
+
+
+
+
+         * * * * FIRST SECTION * * * * 
+
+Fourth Step: we need to get Data throght the annotation, we create annotation file, we add the annotation inside the manifest under the dataSource seciton.
+And in the settigs of the mainService dataSource we add annotation file name.
+
+
+         * * * * SECOND SECTION * * * * 
+
+            "annotation0": {
+                "type": "ODataAnnotation",
+                "uri": "annotations/annotation0.xml",
+                "settings": {
+                    "localUri": "annotations/annotation0.xml"
+                }
+            }
+
+
+            "mainService": {
+                "uri": "/v2/northwind/northwind.svc/",
+                "type": "OData",
+                "settings": {
+                    "annotations": [
+                        "annotation0"
+                    ],
+                    "localUri": "localService/mainService/metadata.xml",
+                    "odataVersion": "2.0"
+                }
+            }
+
+Now we write in the Annotation in the annotation file.
+
+
+            <edmx:Edmx xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx" Version="4.0">
+                <edmx:Reference Uri="https://sap.github.io/odata-vocabularies/vocabularies/UI.xml">
+                    <edmx:Include Namespace="com.sap.vocabularies.UI.v1" Alias="UI"/>
+                </edmx:Reference>
+                <edmx:Reference Uri="https://sap.github.io/odata-vocabularies/vocabularies/HTML5.xml">
+                    <edmx:Include Namespace="com.sap.vocabularies.HTML5.v1" Alias="HTML5"/>
+                </edmx:Reference>
+
+                <edmx:DataServices>
+                    <Schema xmlns="http://docs.oasis-open.org/odata/ns/edm"  Namespace="NorthwindModel">
+                        <Annotations Target="NorthwindModel.Employee">
+                            <Annotation Term="UI.LineItem">
+                                <Collection>
+
+                                    <!-- First Name -->
+                                    <Record Type="com.sap.vocabularies.UI.v1.DataField">
+                                        <PropertyValue Property="Label" String="{i18n>FirstName}"/>
+                                        <PropertyValue Property="Value" Path="FirstName"/>
+                                        <Annotation Term="HTML5.CssDefaults">
+                                            <Record>
+                                                <PropertyValue Property="width" String="7em"/>
+                                            </Record>
+                                        </Annotation>
+                                    </Record>
+
+                                    <!-- Last Name -->
+                                    <Record Type="com.sap.vocabularies.UI.v1.DataField">
+                                        <PropertyValue Property="Label" String="{i18n>LastName}"/>
+                                        <PropertyValue Property="Value" Path="LastName"/>
+                                        <Annotation Term="HTML5.CssDefaults">
+                                            <Record>
+                                                <PropertyValue Property="width" String="7em"/>
+                                            </Record>
+                                        </Annotation>
+                                    </Record>
+
+                                    <!-- BirthDate -->
+                                    <Record Type="com.sap.vocabularies.UI.v1.DataField">
+                                        <PropertyValue Property="Label" String="City"/>
+                                        <PropertyValue Property="Value" Path="City"/>
+                                        <Annotation Term="HTML5.CssDefaults">
+                                            <Record>
+                                                <PropertyValue Property="width" String="7em"/>
+                                            </Record>
+                                        </Annotation>
+                                    </Record>
+
+                                </Collection>
+                            </Annotation>
+                        </Annotations>
+                    </Schema>
+                </edmx:DataServices>
+            </edmx:Edmx>
+
+
+
+Also add this translation to the i18n
+
+LastName = שם משפחה
+FirstName = שם פרטי
+
+
+
+
+
+                                ### TASK ###
+                Add one more Field to the table using the Annotations
+                                ### TASK ###
+
+
+
+
+         * * * * SECOND SECTION * * * * 
+
+
+        * * * * THIRD SECTION * * * *
+Adding a custom search field filter, first we add the decleration of the name space then add the smartfilterbar code.
+
+
+    xmlns:smartFilterBar="sap.ui.comp.smartfilterbar"
+
+    <smartFilterBar:SmartFilterBar
+        id="smartFilterBar"
+        entitySet="Employees"
+        class="requisitionsListFilterBar"
+        liveMode="true"
+        useToolbar="false"
+        showFilterConfiguration="false"
+    >
+        <smartFilterBar:controlConfiguration>
+            <smartFilterBar:ControlConfiguration
+                key="UnitCode"
+                visible="true"
+                visibleInAdvancedArea="true"
+                index="3"
+            />
+            <smartFilterBar:ControlConfiguration
+                key="Type"
+                visible="true"
+                visibleInAdvancedArea="true"
+                index="0"
+            >
+                <smartFilterBar:customControl>
+                            <SearchField width="100%" placeholder="Search..." liveChange="onSearch"/>
+                </smartFilterBar:customControl>
+            </smartFilterBar:ControlConfiguration>
+        </smartFilterBar:controlConfiguration>
+    </smartFilterBar:SmartFilterBar>
+
+
+
+## ## ## Adding this section to the controller.
+
+
+
+        onSearch: function (oEvent) {
+            var sQuery = oEvent.getParameter("newValue");
+            var oSmartTable = this.getView().byId("EmployeesSmartTable");
+            var oTable = oSmartTable.getTable(); // Get the actual table inside SmartTable
+            var oBinding = oTable.getBinding("rows") || oTable.getBinding("items"); // Handle different table types
+            
+            if (!oBinding) {
+                console.warn("Table binding not found.");
+                return;
+            }
+        
+            var aFilters = [];
+            if (sQuery) {
+                aFilters.push(new Filter("FirstName", FilterOperator.Contains, sQuery));
+            }
+        
+            oBinding.filter(aFilters);
+        }
+        
+
+        
+                                        ### TASK ###
+                Add one more Search Field that filters according to the LastName
+                                        ### TASK ###
+
+        * * * * THIRD SECTION * * * *
+
+
+
+
+        * * * * FOURTH SECTION * * * *
+We add this smartFilterBar inside the  <smartFilterBar:SmartFilterBar> section.
+            </smartFilterBar:ControlConfiguration>
+                         <smartFilterBar:ControlConfiguration
+                            key="City"
+                            visibleInAdvancedArea="true"
+                            controlType="dropDownList"
+                            index="2"
+                            filterType="multiple"
+                        />
+        </smartFilterBar:controlConfiguration>
+
+
+we add this to the annotation
+
+
+<Annotations Target="NorthwindModel.Employee/City">
+    <Annotation Term="Common.ValueListWithFixedValues" Bool="true" />
+    <Annotation Term="com.sap.vocabularies.Common.v1.ValueList">
+        <Record Type="com.sap.vocabularies.Common.v1.ValueListType">
+            <PropertyValue Property="CollectionPath" String="Customer_and_Suppliers_by_Cities" />
+            <PropertyValue Property="Parameters">
+                <Collection>
+                    <Record Type="com.sap.vocabularies.Common.v1.ValueListParameterOut">
+                        <PropertyValue Property="LocalDataProperty" PropertyPath="City" />
+                        <PropertyValue Property="ValueListProperty" String="City" />
+                    </Record>
+
+                </Collection>
+            </PropertyValue>
+        </Record>
+    </Annotation>
+</Annotations>
+            <Annotations Target="NorthwindModel.Customer_and_Suppliers_by_City/CompanyName">
+                <Annotation Term="Common.Text" Path="City">
+                    <Annotation Term="UI.TextArrangement" EnumMember="UI.TextArrangementType/TextOnly" />
+                </Annotation>
+            </Annotations>
+
+
+            
+                                        ### TASK ###
+                                    NO TASK YOU CAN RELAX!
+                                        ### TASK ###
+
+
+                * * * * FOURTH SECTION * * * *

@@ -1,0 +1,14 @@
+#
+#Wed Mar 05 15:02:33 UTC 2025
+Description=Northwind OData Service
+WebIDEEnabled=true
+URL=https\://services.odata.org
+Name=northwind
+WebIDEUsage=odata_gen
+Type=HTTP
+HTML5.DynamicDestination=true
+TrustAll=true
+Authentication=NoAuthentication
+AppgyverEnabled=true
+ProxyType=Internet
+WebIDESystem=Northwind
